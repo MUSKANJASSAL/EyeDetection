@@ -4,7 +4,7 @@ import numpy as np
 
 app = Flask(__name__)
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
+# eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 cap = cv2.VideoCapture(0)
 
 @app.route('/')
@@ -21,12 +21,15 @@ def gen(cap):
             cv2.rectangle(img,(x,y), (x+w,y+h), (255,0,0), 2)
             roi_gray = gray[y:y+h,x:x+w]
             roi_color = img[y:y+h,x:x+w]
-            eyes = eye_cascade.detectMultiScale(roi_gray)
-            for(ex,ey,ew,eh) in eyes:
-                cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
-            cv2.imshow('foto',img)
-        if (cv2.waitKey(1) == ord('q')):
-            break;
+            # eyes = eye_cascade.detectMultiScale(roi_gray)
+            # for(ex,ey,ew,eh) in eyes:
+            #     cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+        ret, jpeg = cv2.imencode('.jpg', img)
+        # save frame as JPG file
+        frame = jpeg.tobytes()
+        # Converting image into bytes
+        yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 @app.route('/video_feed')
 def video_feed():
